@@ -1,0 +1,194 @@
+\documentclass[10pt]{beamer}
+\usetheme[progressbar=frametitle]{metropolis}
+\usepackage{appendixnumberbeamer}
+\usepackage{booktabs}
+\usepackage[scale=2]{ccicons}
+\usepackage{pgfplots}
+\usepgfplotslibrary{dateplot}
+\usepackage[]{algorithm2e}
+\usepackage[normalem]{ulem}
+\usepackage{amsmath}
+\usepackage{xspace}
+\newcommand{\themename}{\textbf{\textsc{metropolis}}\xspace}
+
+\title{Directed acyclic graph with processing time on Vertices}
+\subtitle{ILP Solver}
+\author{Vince Popp, Walker Williams, Sayantan Datta, Brandon Beckwith}
+\institute{ITCS 6115 / 8115 : Spring 2020}
+
+\date{Monday, March 16, 2020}
+% \titlegraphic{\hfill\includegraphics[height=1.5cm]{logo.pdf}}
+% ---------------------
+% Sayantan: considering the class projector is 4:3,
+%           lets not change it to 16:9 yet.
+% ---------------------
+\small
+\begin{document}
+ 
+\frame{\titlepage}
+ 
+\begin{frame}
+\frametitle{Problem Statement}
+\textbf{Input:} A directed acyclic graph of tasks $G = (V, E)$ with processing time on the vertices (tasks) $p_i$. A number of processors $m$.
+\medskip
+
+\textbf{Output:} A mapping of tasks to processors $\pi(i) \in \{1, \ldots, m \}$. A start time on tasks $\sigma(i) \geq 0$. A task cannot start until all its predecessor tasks are complete. Once a task $i$ starts running, it will run for $p_i$ time until completion. Two tasks running on the same processor cannot be running on the same time.
+\medskip
+
+\textbf{Metric:} Minimize the time of completion of the last task.
+\end{frame}
+
+\begin{frame}{The Problem}
+    \begin{itemize}
+        \item Example:
+        \begin{itemize}
+            \item Assembly line
+        \end{itemize}
+    \end{itemize}
+\end{frame}
+
+% \begin{frame}{Input}
+%     \begin{itemize}
+%         \item $N$: the number of tasks (# of vertices)
+%         \item $M$: number of processors
+        
+        
+        
+%     \end{itemize}
+% \end{frame}
+
+% \begin{frame}{ILP Formulation}
+%     \begin{itemize}
+%         \item Objective Function:\\
+%         \begin{itemize}
+%             \item Minimize the time of completion of the last task
+%             \item[] $\min Z$
+%             %\item[] $min_{i = \text{1 to k}} \sigma_i + p_i  $
+%             %\item If last task is vertex $l$, then, obj function is\\
+%             %      $\min \sigma(l) + p_l$
+%             %\item[] $\min \sum(\sigma(i)+p_i ))$ where $i \in V$
+%         \end{itemize}
+%         \item Constraints:
+%         \begin{itemize}
+%             \item[] $ Z \geq \sigma(i) + p_i$, and $i \in V$
+%             \item A task cannot start until all its predecessor tasks are complete.
+%             \item $ \sigma(i) + p_i \leq \sigma(j)$ \qquad $\forall i,j \in V$ \quad such that \quad $i \in succ(j)$ 
+%             %\item $\sum_{j \in Pred(k)} x_j = |Pred(k)|$
+%             \item Once a task $i$ starts running, it will run for $p_i$ time until completion.
+%             \item \textbf{\textit{unsure where to go here}}
+%             %\item $ \sigma(i) + p_i$
+%             \item Two tasks running on the same processor cannot be running on the same time.
+%             \item $\sigma(i) + p_i \leq \sigma(j)$ or $\sigma(j) + p_j \leq \sigma(i)$ \qquad $\forall i,j \in V$ \qquad  $\pi(i) = \pi(j)$ 
+%             % \item $\forall i,j, [\sigma(i); C_i[\cap [C_j [ = \varnothing$
+%             % \item $\forall i,j, Active(i) and Active(j) then \sigma(i) \neq \sigma(j)$
+%             % \item with $x_i = 1$  means task $i$ is completed, else $x_i = 0$
+%             %\item $|S|$ or $n(S)$ is the cardinalinality of set $S$
+%             % \item where $C_i = \sigma(i) + p_i$ is the task completion time for task $i$
+%             % \item $X_i \in {0,1}$
+%         \end{itemize}
+%     \end{itemize}
+% \end{frame}
+
+\begin{frame}{ILP Formulation: Objective fn}
+    \begin{itemize}
+        \item Objective Function:\\
+        \begin{itemize}
+            \item Minimize the time of completion of the last task
+            \item[] $\min Z$
+        \end{itemize}
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Constraints}
+    \begin{enumerate}
+        %\item $ Z \geq \sigma(i) + p_i$, and $i \in V$
+        \item $ Z - c_i \geq 0$, and $ \forall i \in V$
+        \item $c_i = \sigma_i + p_i$, time for completion for a task
+        \item $\sigma_i = \sigma(i)$ is the starting time for a process
+        \item Starting time of each process needs to be greater than zero
+        \begin{enumerate}
+            \item $\sigma_i \geq 0$, and $\forall i \in V$
+        \end{enumerate}
+    \end{enumerate}
+\end{frame}
+
+\begin{frame}{Constraints(2)}
+\begin{enumerate}[3]
+    \item A task cannot start until all its predecessor tasks are complete.
+    \begin{enumerate}
+        
+        \item[] $ c_i \leq \sigma_j$  $\forall i,j \in V$ such that \quad $i \in succ(j)$ 
+        
+        \item[] $ \sigma_i + p_i \leq \sigma_j$  $\forall i,j \in V$ such that \quad $i \in succ(j)$ 
+        
+        \item[] $ \sigma_j - \sigma_i \geq p_i$  $\forall i,j \in V$ such that \quad $i \in succ(j)$ 
+        
+        %\item $ \sigma_j - \sigma_i \geq e_{ij} p_i$ \quad $\forall i,j \in V$
+        
+        %\item Where, $$ e_{ij} = \begin{cases} 1 & \text{if } A_{ij} = 1,  \forall i,j \in V \\ 0 & \text{otherwise} \end{cases} $$
+        
+        %\item $A$ is the adjacency matrix of the graph
+        
+    \end{enumerate}
+\end{enumerate}
+\end{frame}
+
+
+\begin{frame}{Constraints(3)}
+    \begin{enumerate}[4]
+    \item Once a task $i$ starts running, it will run for $p_i$ time until completion.
+    \begin{enumerate}
+        %\item $ \sigma(i) + p_i \leq \sigma(j)$
+        \item If a processor has a task $i$, at a particular time $\sigma(i)$, then the processor has the same task $i$ at the time $\sigma(i) + p_i$
+        \item $$-\sum_{k = t_{ij}}^{t_{ij} + p_i} x_{ijk} \geq -p_i$$
+        \item $$x_{ijk} = \begin{cases} 1 & \text{if task } $i$ \text{ is allocated to processor $j$ at time $k$ } \\ 0 & \text{otherwise} \end{cases} $$
+        \item $$t_{ij} = \begin{cases} \sigma_i & \text{time task } $i$ \text{  starts in processor } $j$\\ 0 & \text{otherwise} \end{cases} $$
+    \end{enumerate}
+\end{enumerate}
+\end{frame}
+
+\begin{frame}{Constraints(3a)}
+    \begin{enumerate}
+        \item All processors have finished
+        
+    \end{enumerate}
+    
+\end{frame}
+
+% Not Required
+% \begin{frame}{Constraints(4)}
+%     \begin{enumerate}[5]
+%     \item Two tasks running on the same processor cannot be running at the same time.
+%     \begin{enumerate}
+%     \item $\sigma_j - \sigma_i \geq e_{ij}p_i$  $\forall i,j \in V$   $\pi_i = \pi_j$ %and $(i,j) \in E$
+%     \item $\sigma_i - \sigma_j \geq e_{ji}p_j$  $\forall i,j \in V$   $\pi_i = \pi_j$
+%     \item Where, $$ e_{ij} = \begin{cases} 1 & \text{if} A_{ij} = 1 \\ 0 & \text{otherwise} \end{cases} $$
+%     \item $\pi_i$ gives the process id for the processor the job is running
+% \end{enumerate}
+% \end{enumerate}
+% \end{frame}
+
+% \begin{frame}{Optimization}
+%     \begin{enumerate}
+%         \item Every task's predecessors must be split among m processors in such a way that minimizes the start time of that task.
+%         \item $ \sum_{start task(i)}^{\sigma(j)} minimize(\sigma(i))$
+%         \item This results in a string of tasks at the end that has minimized completion time.
+%         \item $ \sum_{start task(i)}^{end task(j)} minimize(\sigma(i) + p_i) = Z$
+%     \end{enumerate}
+% \end{frame}
+
+\begin{frame}{Complexity Summary}
+    \begin{enumerate}
+        %\item If we arrange the tasks topologically, the complexity is $\mathcal{O}(V + E)$
+        \item $\mathcal{O}(2^{|v|})$, for all possible subsets of tasks that can be assigned to each processor.
+        %\item Similar to that of dynamic programming (we must optimized the sub problems to optimize the whole problem).
+        %\item This makes it a branching structure based on our constraints.
+    \end{enumerate}
+\end{frame}
+
+\begin{frame}{ILP Validation}
+    \begin{enumerate}
+        \item Because we required that all tasks and their predecessors are complete, we know that by the end the ILP will always complete every task and find the minimal finish time.
+    \end{enumerate}
+\end{frame}
+\end{document}
