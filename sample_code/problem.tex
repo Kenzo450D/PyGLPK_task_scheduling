@@ -1,0 +1,29 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath}
+\usepackage{url}
+\usepackage[normalem]{ulem}
+
+\begin{document}
+
+\begin{Large}
+Example Code
+\end{Large}
+
+\vspace{1cm}
+
+This example has been taken from \\ \url{http://www.tfinley.net/software/pyglpk/discussion.html}
+
+
+The optimization problem is as follows:
+
+\begin{align*}
+\max Z &= 10 x_0 + 6 x_1 + 4 x_2 \\
+\text{subject to }p &= x_0 + x_1  + x_2 \\
+q &= 10 x_0 + 4 x_1 + 5 x_2 \\
+r &= 2 x_0 + 2 x_1 + 6 x_2 \\
+\text{bounds of variables } -\infty &< p \leq 100 \quad 0 \leq x_0 \leq \infty \\
+- \infty &< q \leq 600 \quad 0 \leq x_1 \leq \infty \\
+- \infty &< r \leq 300 \quad 0 \leq x_2 \leq \infty
+\end{align*}
+
+\end{document} 
